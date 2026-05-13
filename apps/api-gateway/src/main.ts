@@ -1,8 +1,26 @@
 import { NestFactory } from '@nestjs/core';
-import { ApiGatewayModule } from './api-gateway.module';
+import { ConfigService } from '@nestjs/config';
+import { AppModule } from './app.module';
 
+/**
+ * Starts the BankLite API Gateway.
+ */
 async function bootstrap() {
-  const app = await NestFactory.create(ApiGatewayModule);
-  await app.listen(process.env.port ?? 3000);
+  /**
+   * Creates the NestJS application instance.
+   */
+  const app = await NestFactory.create(AppModule);
+
+  /**
+   * Reads the API Gateway port from environment variables.
+   */
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('API_GATEWAY_PORT', 3000);
+
+  /**
+   * Starts listening for HTTP requests.
+   */
+  await app.listen(port);
 }
+
 bootstrap();
