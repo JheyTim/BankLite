@@ -64,6 +64,33 @@
         "tsConfigPath": "apps/bill-payment-service/tsconfig.app.json"
       }
     },
+    "common": {
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
+      }
+    },
+    "contracts": {
+      "type": "library",
+      "root": "libs/contracts",
+      "entryFile": "index",
+      "sourceRoot": "libs/contracts/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/contracts/tsconfig.lib.json"
+      }
+    },
+    "database": {
+      "type": "library",
+      "root": "libs/database",
+      "entryFile": "index",
+      "sourceRoot": "libs/database/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/database/tsconfig.lib.json"
+      }
+    },
     "file-service": {
       "type": "application",
       "root": "apps/file-service",
@@ -100,6 +127,24 @@
         "tsConfigPath": "apps/ledger-service/tsconfig.app.json"
       }
     },
+    "logger": {
+      "type": "library",
+      "root": "libs/logger",
+      "entryFile": "index",
+      "sourceRoot": "libs/logger/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/logger/tsconfig.lib.json"
+      }
+    },
+    "messaging": {
+      "type": "library",
+      "root": "libs/messaging",
+      "entryFile": "index",
+      "sourceRoot": "libs/messaging/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/messaging/tsconfig.lib.json"
+      }
+    },
     "notification-service": {
       "type": "application",
       "root": "apps/notification-service",
@@ -107,6 +152,15 @@
       "sourceRoot": "apps/notification-service/src",
       "compilerOptions": {
         "tsConfigPath": "apps/notification-service/tsconfig.app.json"
+      }
+    },
+    "redis": {
+      "type": "library",
+      "root": "libs/redis",
+      "entryFile": "index",
+      "sourceRoot": "libs/redis/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/redis/tsconfig.lib.json"
       }
     },
     "transfer-service": {
