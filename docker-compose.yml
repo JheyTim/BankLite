@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16
+    image: postgres:16-alpine
     container_name: banklite-postgres
     restart: unless-stopped
     environment:
@@ -31,7 +31,7 @@ services:
       - banklite-network
 
   redis:
-    image: redis:7
+    image: redis:7-alpine
     container_name: banklite-redis
     restart: unless-stopped
     ports:
@@ -51,7 +51,7 @@ services:
       - banklite-network
 
   rabbitmq:
-    image: rabbitmq:4-management
+    image: rabbitmq:4-management-alpine
     container_name: banklite-rabbitmq
     restart: unless-stopped
     environment:
