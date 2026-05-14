@@ -62,3 +62,43 @@ Start infrastructure:
 ```bash
 npm run infra:up
 ```
+
+## Auth Service
+
+Start Auth Service:
+
+```bash
+npm run start:dev auth-service
+```
+
+Register:
+
+```bash
+curl -X POST http://localhost:3001/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "timothy@example.com",
+    "fullName": "Timothy Jhey",
+    "password": "password123",
+    "role": "USER"
+  }'
+```
+
+Login:
+
+```bash
+curl -X POST http://localhost:3001/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "timothy@example.com",
+    "password": "password123"
+  }'
+```
+
+## User Profile Service
+
+```bash
+npm run start:dev user-profile-service
+```
+
+The profile service consumes the user.registered event and creates a profile record.
