@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import {
   BANKLITE_RABBITMQ_CLIENT,
-  AUTH_EVENTS_QUEUE,
+  PROFILE_EVENTS_QUEUE,
 } from './rabbitmq.constants';
 
 /**
@@ -38,7 +38,7 @@ import {
             /**
              * Default publishing queue for auth-related events.
              */
-            queue: AUTH_EVENTS_QUEUE,
+            queue: PROFILE_EVENTS_QUEUE,
 
             /**
              * Durable queues survive broker restarts.
