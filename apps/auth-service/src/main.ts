@@ -1,8 +1,39 @@
 import { NestFactory } from '@nestjs/core';
-import { AuthServiceModule } from './auth-service.module';
+import { ConfigService } from '@nestjs/config';
+import { ValidationPipe } from '@nestjs/common';
+import { AppModule } from './app.module';
 
+/**
+ * Starts the Auth Service as an HTTP service for local development.
+ * Later, the API Gateway can call this service internally.
+ */
 async function bootstrap() {
-  const app = await NestFactory.create(AuthServiceModule);
-  await app.listen(process.env.port ?? 3000);
+  /**
+   * Creates the NestJS application instance.
+   */
+  const app = await NestFactory.create(AppModule);
+
+  /**
+   * Enables automatic DTO validation.
+   */
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  /**
+   * Reads the Auth Service port from environment variables.
+   */
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('AUTH_SERVICE_PORT', 3001);
+
+  /**
+   * Starts the Auth Service HTTP server.
+   */
+  await app.listen(port);
 }
+
 bootstrap();
