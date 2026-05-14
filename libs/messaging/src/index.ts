@@ -1,2 +1,2 @@
-export * from './messaging.module';
-export * from './messaging.service';
+export * from './rabbitmq/rabbitmq.constants';
+export * from './rabbitmq/rabbitmq-client.module';
