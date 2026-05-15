@@ -102,3 +102,56 @@ npm run start:dev user-profile-service
 ```
 
 The profile service consumes the user.registered event and creates a profile record.
+
+## File Service
+
+Start File Service:
+
+```bash
+npm run start:dev file-service
+```
+
+Upload a KYC document:
+
+```bash
+curl -X POST http://localhost:3010/files/kyc-documents \
+  -F "userId=PASTE_USER_ID_HERE" \
+  -F "documentType=GOVERNMENT_ID" \
+  -F "file=@sample-kyc.txt"
+```
+
+## KYC Service
+
+Start KYC Service:
+
+```bash
+npm run start:dev kyc-service
+```
+
+List KYC cases:
+
+```bash
+curl http://localhost:3003/kyc/cases
+```
+
+Approve KYC:
+
+```bash
+curl -X PATCH http://localhost:3003/kyc/cases/PASTE_KYC_CASE_ID_HERE/approve \
+  -H "Content-Type: application/json" \
+  -d '{
+    "reviewedByUserId": "PASTE_REVIEWER_USER_ID_HERE"
+  }'
+```
+
+Reject KYC:
+
+```bash
+curl -X PATCH http://localhost:3003/kyc/cases/PASTE_KYC_CASE_ID_HERE/reject \
+  -H "Content-Type: application/json" \
+  -d '{
+    "reviewedByUserId": "PASTE_REVIEWER_USER_ID_HERE",
+    "reason": "Document is unreadable."
+  }'
+
+```

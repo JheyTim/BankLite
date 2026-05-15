@@ -4,11 +4,11 @@
 export const BANKLITE_RABBITMQ_CLIENT = 'BANKLITE_RABBITMQ_CLIENT';
 
 /**
- * Queue used for Auth Service events.
- */
-export const AUTH_EVENTS_QUEUE = 'auth.events';
-
-/**
- * Queue used for User Profile Service event consumers.
+ * Queue used by User Profile Service.
  */
 export const PROFILE_EVENTS_QUEUE = 'profile.events';
+
+/**
+ * Queue used by KYC Service.
+ */
+export const KYC_EVENTS_QUEUE = 'kyc.events';

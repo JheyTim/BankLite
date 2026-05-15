@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RabbitMqClientModule } from '@app/messaging';
+import { RabbitMqClientModule, PROFILE_EVENTS_QUEUE } from '@app/messaging';
 import { AuthUser } from '../users/entities/auth-user.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -35,7 +35,7 @@ import type { StringValue } from 'ms';
     /**
      * RabbitMQ publisher client.
      */
-    RabbitMqClientModule,
+    RabbitMqClientModule.register(PROFILE_EVENTS_QUEUE),
   ],
   controllers: [AuthController],
   providers: [AuthService, AuthPublisher],

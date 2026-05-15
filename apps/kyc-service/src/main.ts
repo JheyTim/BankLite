@@ -1,8 +1,53 @@
 import { NestFactory } from '@nestjs/core';
-import { KycServiceModule } from './kyc-service.module';
+import { ConfigService } from '@nestjs/config';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { ValidationPipe } from '@nestjs/common';
+import { KYC_EVENTS_QUEUE } from '@app/messaging';
+import { AppModule } from './app.module';
 
+/**
+ * Starts KYC Service as both HTTP server and RabbitMQ consumer.
+ */
 async function bootstrap() {
-  const app = await NestFactory.create(KycServiceModule);
-  await app.listen(process.env.port ?? 3000);
+  const app = await NestFactory.create(AppModule);
+
+  /**
+   * Enables DTO validation for HTTP endpoints.
+   */
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  const configService = app.get(ConfigService);
+
+  /**
+   * Connect RabbitMQ consumer for file.uploaded events.
+   */
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: [configService.get<string>('RABBITMQ_URL')!],
+      queue: KYC_EVENTS_QUEUE,
+      queueOptions: {
+        durable: true,
+      },
+    },
+  });
+
+  /**
+   * Start RabbitMQ consumer.
+   */
+  await app.startAllMicroservices();
+
+  /**
+   * Start HTTP server for manual review endpoints.
+   */
+  const port = configService.get<number>('KYC_SERVICE_PORT', 3003);
+  await app.listen(port);
 }
+
 bootstrap();
