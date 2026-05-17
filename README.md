@@ -153,5 +153,44 @@ curl -X PATCH http://localhost:3003/kyc/cases/PASTE_KYC_CASE_ID_HERE/reject \
     "reviewedByUserId": "PASTE_REVIEWER_USER_ID_HERE",
     "reason": "Document is unreadable."
   }'
+```
 
+## Account Service
+
+Start Account Service:
+
+```bash
+npm run start:dev account-service
+```
+
+The Account Service consumes the kyc.verified event and creates a default active PHP savings account.
+
+List accounts by user:
+
+```bash
+curl http://localhost:3004/accounts/users/PASTE_USER_ID_HERE
+```
+
+Get account by ID:
+
+```bash
+curl http://localhost:3004/accounts/PASTE_ACCOUNT_ID_HERE
+```
+
+Get account status history:
+
+```bash
+curl http://localhost:3004/accounts/PASTE_ACCOUNT_ID_HERE/status-history
+```
+
+Account creation flow:
+
+```txt
+kyc.verified
+    ↓
+account-service creates ACTIVE savings account
+    ↓
+account.created
+    ↓
+account.activated
 ```

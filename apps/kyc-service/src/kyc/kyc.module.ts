@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RabbitMqClientModule, KYC_EVENTS_QUEUE } from '@app/messaging';
+import { RabbitMqClientModule, ACCOUNT_EVENTS_QUEUE } from '@app/messaging';
 import { KycCase } from './entities/kyc-case.entity';
 import { KycDocument } from './entities/kyc-document.entity';
 import { KycController } from './kyc.controller';
@@ -19,10 +19,9 @@ import { KycPublisher } from './kyc.publisher';
     TypeOrmModule.forFeature([KycCase, KycDocument]),
 
     /**
-     * Temporary publisher queue.
-     * In Milestone 5, Account Service will consume kyc.verified.
+     * Publishes kyc.verified and kyc.rejected events to Account Service queue.
      */
-    RabbitMqClientModule.register(KYC_EVENTS_QUEUE),
+    RabbitMqClientModule.register(ACCOUNT_EVENTS_QUEUE),
   ],
   controllers: [KycController, KycConsumer],
   providers: [KycService, KycPublisher],
