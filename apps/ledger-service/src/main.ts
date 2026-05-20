@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { LedgerServiceModule } from './ledger-service.module';
+import { LedgerServiceModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(LedgerServiceModule);
