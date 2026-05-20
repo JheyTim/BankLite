@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RabbitMqClientModule, ACCOUNT_EVENTS_QUEUE } from '@app/messaging';
+import { RabbitMqClientModule, LEDGER_EVENTS_QUEUE } from '@app/messaging';
 import { Account } from './entities/account.entity';
 import { AccountStatusHistory } from './entities/account-status-history.entity';
 import { AccountController } from './account.controller';
@@ -19,10 +19,10 @@ import { AccountService } from './account.service';
     TypeOrmModule.forFeature([Account, AccountStatusHistory]),
 
     /**
-     * Temporary publisher queue for account lifecycle events.
-     * Later, we can route these events to Ledger, Notification, and Audit queues.
+     * Publishes account lifecycle events to Ledger Service queue.
+     * Ledger Service needs account.activated to initialize balances.
      */
-    RabbitMqClientModule.register(ACCOUNT_EVENTS_QUEUE),
+    RabbitMqClientModule.register(LEDGER_EVENTS_QUEUE),
   ],
   controllers: [AccountController, AccountConsumer],
   providers: [AccountService, AccountPublisher],
