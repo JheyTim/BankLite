@@ -1,8 +1,53 @@
 import { NestFactory } from '@nestjs/core';
-import { LedgerServiceModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { ValidationPipe } from '@nestjs/common';
+import { LEDGER_EVENTS_QUEUE } from '@app/messaging';
+import { AppModule } from './app.module';
 
+/**
+ * Starts Ledger Service as both HTTP server and RabbitMQ consumer.
+ */
 async function bootstrap() {
-  const app = await NestFactory.create(LedgerServiceModule);
-  await app.listen(process.env.port ?? 3000);
+  const app = await NestFactory.create(AppModule);
+
+  /**
+   * Enables DTO validation for HTTP endpoints.
+   */
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  const configService = app.get(ConfigService);
+
+  /**
+   * Connect RabbitMQ consumer for account.activated and transfer.requested.
+   */
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: [configService.get<string>('RABBITMQ_URL')!],
+      queue: LEDGER_EVENTS_QUEUE,
+      queueOptions: {
+        durable: true,
+      },
+    },
+  });
+
+  /**
+   * Start RabbitMQ consumer.
+   */
+  await app.startAllMicroservices();
+
+  /**
+   * Start HTTP server.
+   */
+  const port = configService.get<number>('LEDGER_SERVICE_PORT', 3005);
+  await app.listen(port);
 }
+
 bootstrap();
