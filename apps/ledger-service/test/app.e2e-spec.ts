@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { LedgerServiceModule } from './../src/ledger-service.module';
+import { LedgerServiceModule } from '../src/app.module';
 
 describe('LedgerServiceController (e2e)', () => {
   let app: INestApplication;

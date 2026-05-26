@@ -194,3 +194,60 @@ account.created
     ↓
 account.activated
 ```
+
+## Ledger Service
+
+Start Ledger Service:
+
+```bash
+npm run start:dev ledger-service
+```
+
+The Ledger Service owns account balances and append-only ledger entries.
+
+When Account Service publishes account.activated, Ledger Service creates a zero balance row.
+
+Get account balance:
+
+```bash
+curl http://localhost:3005/ledger/balances/PASTE_ACCOUNT_ID_HERE
+```
+
+List ledger entries:
+
+```bash
+curl http://localhost:3005/ledger/accounts/PASTE_ACCOUNT_ID_HERE/entries
+```
+
+Create local test deposit:
+
+```bash
+curl -X POST http://localhost:3005/ledger/deposits \
+  -H "Content-Type: application/json" \
+  -d '{
+    "accountId": "PASTE_ACCOUNT_ID_HERE",
+    "amountMinor": 100000,
+    "currency": "PHP"
+  }'
+```
+
+Create local test transfer posting:
+
+```bash
+curl -X POST http://localhost:3005/ledger/transfer-postings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fromAccountId": "PASTE_FIRST_ACCOUNT_ID_HERE",
+    "toAccountId": "PASTE_SECOND_ACCOUNT_ID_HERE",
+    "amountMinor": 25000,
+    "currency": "PHP"
+  }'
+```
+
+Ledger rules:
+
+- Never update balances without ledger entries.
+- Store money as minor units.
+- Every money movement must have debit and credit entries.
+- ledger_entries is append-only.
+- account_balances is a fast-read cache.

@@ -4,3 +4,6 @@ export * from './kyc-verified.event';
 export * from './kyc-rejected.event';
 export * from './account-created.event';
 export * from './account-activated.event';
+export * from './ledger-posted.event';
+export * from './ledger-failed.event';
+export * from './transfer-requested.event';

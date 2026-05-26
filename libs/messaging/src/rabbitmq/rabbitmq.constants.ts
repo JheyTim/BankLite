@@ -17,3 +17,8 @@ export const KYC_EVENTS_QUEUE = 'kyc.events';
  * Queue used by Account Service.
  */
 export const ACCOUNT_EVENTS_QUEUE = 'account.events';
+
+/**
+ * Queue used by Ledger Service.
+ */
+export const LEDGER_EVENTS_QUEUE = 'ledger.events';
