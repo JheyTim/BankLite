@@ -39,7 +39,7 @@ BankLite is a production-style digital banking backend built with TypeScript, Ne
 
 ## Local Development
 
-Install dependencies:
+### Install dependencies:
 
 ```bash
 npm install
@@ -49,7 +49,7 @@ npm install
 
 BankLite uses Docker Compose for local infrastructure.
 
-Services:
+### Services:
 
 - PostgreSQL on port `5432`
 - Redis on port `6379`
@@ -57,7 +57,7 @@ Services:
 - RabbitMQ Management UI on port `15672`
 - Floci local AWS-compatible endpoint on port `4566`
 
-Start infrastructure:
+### Start infrastructure:
 
 ```bash
 npm run infra:up
@@ -65,13 +65,13 @@ npm run infra:up
 
 ## Auth Service
 
-Start Auth Service:
+### Start Auth Service:
 
 ```bash
 npm run start:dev auth-service
 ```
 
-Register:
+### Register:
 
 ```bash
 curl -X POST http://localhost:3001/auth/register \
@@ -84,7 +84,7 @@ curl -X POST http://localhost:3001/auth/register \
   }'
 ```
 
-Login:
+### Login:
 
 ```bash
 curl -X POST http://localhost:3001/auth/login \
@@ -105,13 +105,13 @@ The profile service consumes the user.registered event and creates a profile rec
 
 ## File Service
 
-Start File Service:
+### Start File Service:
 
 ```bash
 npm run start:dev file-service
 ```
 
-Upload a KYC document:
+### Upload a KYC document:
 
 ```bash
 curl -X POST http://localhost:3010/files/kyc-documents \
@@ -122,19 +122,19 @@ curl -X POST http://localhost:3010/files/kyc-documents \
 
 ## KYC Service
 
-Start KYC Service:
+### Start KYC Service:
 
 ```bash
 npm run start:dev kyc-service
 ```
 
-List KYC cases:
+### List KYC cases:
 
 ```bash
 curl http://localhost:3003/kyc/cases
 ```
 
-Approve KYC:
+### Approve KYC:
 
 ```bash
 curl -X PATCH http://localhost:3003/kyc/cases/PASTE_KYC_CASE_ID_HERE/approve \
@@ -144,7 +144,7 @@ curl -X PATCH http://localhost:3003/kyc/cases/PASTE_KYC_CASE_ID_HERE/approve \
   }'
 ```
 
-Reject KYC:
+### Reject KYC:
 
 ```bash
 curl -X PATCH http://localhost:3003/kyc/cases/PASTE_KYC_CASE_ID_HERE/reject \
@@ -157,7 +157,7 @@ curl -X PATCH http://localhost:3003/kyc/cases/PASTE_KYC_CASE_ID_HERE/reject \
 
 ## Account Service
 
-Start Account Service:
+### Start Account Service:
 
 ```bash
 npm run start:dev account-service
@@ -165,25 +165,25 @@ npm run start:dev account-service
 
 The Account Service consumes the kyc.verified event and creates a default active PHP savings account.
 
-List accounts by user:
+### List accounts by user:
 
 ```bash
 curl http://localhost:3004/accounts/users/PASTE_USER_ID_HERE
 ```
 
-Get account by ID:
+### Get account by ID:
 
 ```bash
 curl http://localhost:3004/accounts/PASTE_ACCOUNT_ID_HERE
 ```
 
-Get account status history:
+### Get account status history:
 
 ```bash
 curl http://localhost:3004/accounts/PASTE_ACCOUNT_ID_HERE/status-history
 ```
 
-Account creation flow:
+### Account creation flow:
 
 ```txt
 kyc.verified
@@ -197,7 +197,7 @@ account.activated
 
 ## Ledger Service
 
-Start Ledger Service:
+### Start Ledger Service:
 
 ```bash
 npm run start:dev ledger-service
@@ -207,19 +207,19 @@ The Ledger Service owns account balances and append-only ledger entries.
 
 When Account Service publishes account.activated, Ledger Service creates a zero balance row.
 
-Get account balance:
+### Get account balance:
 
 ```bash
 curl http://localhost:3005/ledger/balances/PASTE_ACCOUNT_ID_HERE
 ```
 
-List ledger entries:
+### List ledger entries:
 
 ```bash
 curl http://localhost:3005/ledger/accounts/PASTE_ACCOUNT_ID_HERE/entries
 ```
 
-Create local test deposit:
+### Create local test deposit:
 
 ```bash
 curl -X POST http://localhost:3005/ledger/deposits \
@@ -231,7 +231,7 @@ curl -X POST http://localhost:3005/ledger/deposits \
   }'
 ```
 
-Create local test transfer posting:
+### Create local test transfer posting:
 
 ```bash
 curl -X POST http://localhost:3005/ledger/transfer-postings \
