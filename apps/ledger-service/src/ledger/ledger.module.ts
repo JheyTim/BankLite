@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RabbitMqClientModule, LEDGER_EVENTS_QUEUE } from '@app/messaging';
+import { RabbitMqClientModule, TRANSFER_EVENTS_QUEUE } from '@app/messaging';
 import { AccountBalance } from './entities/account-balance.entity';
 import { LedgerEntry } from './entities/ledger-entry.entity';
 import { LedgerTransaction } from './entities/ledger-transaction.entity';
@@ -20,10 +20,9 @@ import { LedgerService } from './ledger.service';
     TypeOrmModule.forFeature([AccountBalance, LedgerEntry, LedgerTransaction]),
 
     /**
-     * Temporary publisher queue.
-     * Later, Transfer Service will consume ledger.posted and ledger.failed.
+     * Publishes ledger.posted and ledger.failed events to Transfer Service queue.
      */
-    RabbitMqClientModule.register(LEDGER_EVENTS_QUEUE),
+    RabbitMqClientModule.register(TRANSFER_EVENTS_QUEUE),
   ],
   controllers: [LedgerController, LedgerConsumer],
   providers: [LedgerService, LedgerPublisher],

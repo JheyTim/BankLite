@@ -2,6 +2,8 @@
 
 BankLite is a production-style digital banking backend built with TypeScript, NestJS, PostgreSQL, Redis, RabbitMQ, Docker, Kubernetes, centralized logging, and local AWS-compatible storage through Floci.
 
+---
+
 ## Project Goals
 
 - Practice microservices architecture.
@@ -12,6 +14,8 @@ BankLite is a production-style digital banking backend built with TypeScript, Ne
 - Use Floci for local AWS-style file storage.
 - Practice Docker and Kubernetes deployment patterns.
 - Add comments to non-obvious code for learning.
+
+---
 
 ## Services
 
@@ -28,6 +32,8 @@ BankLite is a production-style digital banking backend built with TypeScript, Ne
 - file-service
 - audit-log-service
 
+---
+
 ## Shared Libraries
 
 - common
@@ -37,6 +43,8 @@ BankLite is a production-style digital banking backend built with TypeScript, Ne
 - messaging
 - redis
 
+---
+
 ## Local Development
 
 ### Install dependencies:
@@ -44,6 +52,8 @@ BankLite is a production-style digital banking backend built with TypeScript, Ne
 ```bash
 npm install
 ```
+
+---
 
 ## Local Infrastructure
 
@@ -62,6 +72,8 @@ BankLite uses Docker Compose for local infrastructure.
 ```bash
 npm run infra:up
 ```
+
+---
 
 ## Auth Service
 
@@ -103,6 +115,8 @@ npm run start:dev user-profile-service
 
 The profile service consumes the user.registered event and creates a profile record.
 
+---
+
 ## File Service
 
 ### Start File Service:
@@ -119,6 +133,8 @@ curl -X POST http://localhost:3010/files/kyc-documents \
   -F "documentType=GOVERNMENT_ID" \
   -F "file=@sample-kyc.txt"
 ```
+
+---
 
 ## KYC Service
 
@@ -154,6 +170,8 @@ curl -X PATCH http://localhost:3003/kyc/cases/PASTE_KYC_CASE_ID_HERE/reject \
     "reason": "Document is unreadable."
   }'
 ```
+
+---
 
 ## Account Service
 
@@ -194,6 +212,8 @@ account.created
     ↓
 account.activated
 ```
+
+---
 
 ## Ledger Service
 
@@ -244,10 +264,78 @@ curl -X POST http://localhost:3005/ledger/transfer-postings \
   }'
 ```
 
-Ledger rules:
+### Ledger rules:
 
 - Never update balances without ledger entries.
 - Store money as minor units.
 - Every money movement must have debit and credit entries.
 - ledger_entries is append-only.
 - account_balances is a fast-read cache.
+
+---
+
+## Transfer Service
+
+Start Transfer Service:
+
+```bash
+npm run start:dev transfer-service
+```
+
+### Create transfer:
+
+```bash
+curl -X POST http://localhost:3006/transfers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": "PASTE_SENDER_USER_ID_HERE",
+    "fromAccountId": "PASTE_SENDER_ACCOUNT_ID_HERE",
+    "toAccountId": "PASTE_RECEIVER_ACCOUNT_ID_HERE",
+    "amountMinor": 25000,
+    "currency": "PHP",
+    "idempotencyKey": "transfer-test-001"
+  }'
+```
+
+### Get transfer:
+
+```bash
+curl http://localhost:3006/transfers/PASTE_TRANSFER_ID_HERE
+```
+
+### List transfers by user:
+
+```bash
+curl http://localhost:3006/transfers/users/PASTE_USER_ID_HERE
+```
+
+### Get transfer status history:
+
+```bash
+curl http://localhost:3006/transfers/PASTE_TRANSFER_ID_HERE/status-history
+```
+
+### Transfer flow:
+
+```txt
+POST /transfers
+    ↓
+transfer-service saves PROCESSING transfer
+    ↓
+transfer.requested
+    ↓
+ledger-service creates debit and credit entries
+    ↓
+ledger.posted or ledger.failed
+    ↓
+transfer-service marks transfer COMPLETED or FAILED
+```
+
+### Rules:
+
+```txt
+- Every transfer requires an idempotency key.
+- Transfer Service does not update balances.
+- Ledger Service owns all money movement.
+- Duplicate idempotency keys return the existing transfer.
+```

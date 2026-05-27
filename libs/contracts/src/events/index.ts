@@ -7,3 +7,5 @@ export * from './account-activated.event';
 export * from './ledger-posted.event';
 export * from './ledger-failed.event';
 export * from './transfer-requested.event';
+export * from './transfer-completed.event';
+export * from './transfer-failed.event';
