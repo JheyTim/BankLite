@@ -22,3 +22,8 @@ export const ACCOUNT_EVENTS_QUEUE = 'account.events';
  * Queue used by Ledger Service.
  */
 export const LEDGER_EVENTS_QUEUE = 'ledger.events';
+
+/**
+ * Queue used by Transfer Service.
+ */
+export const TRANSFER_EVENTS_QUEUE = 'transfer.events';
