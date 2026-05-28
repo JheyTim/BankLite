@@ -27,3 +27,8 @@ export const LEDGER_EVENTS_QUEUE = 'ledger.events';
  * Queue used by Transfer Service.
  */
 export const TRANSFER_EVENTS_QUEUE = 'transfer.events';
+
+/**
+ * Queue used by Bill Payment Service.
+ */
+export const BILL_PAYMENT_EVENTS_QUEUQ = 'bill-payment.events';
