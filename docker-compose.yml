@@ -1,0 +1,101 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: banklite-postgres
+    restart: unless-stopped
+    environment:
+      # Creates the default PostgreSQL user.
+      POSTGRES_USER: banklite
+
+      # Creates the default PostgreSQL password.
+      POSTGRES_PASSWORD: banklite
+
+      # Creates the default PostgreSQL database.
+      POSTGRES_DB: banklite
+    ports:
+      # Exposes PostgreSQL to your local machine.
+      - "5432:5432"
+    volumes:
+      # Keeps PostgreSQL data even if the container restarts.
+      - postgres_data:/var/lib/postgresql/data
+
+      # Runs local initialization SQL scripts when the database is first created.
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      # Checks if PostgreSQL is ready to accept connections.
+      test: ["CMD-SHELL", "pg_isready -U banklite -d banklite"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - banklite-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: banklite-redis
+    restart: unless-stopped
+    ports:
+      # Redis is used for locks, rate limiting, fraud counters, and idempotency.
+      - "6379:6379"
+    volumes:
+      # Keeps Redis data across restarts.
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      # Checks if Redis responds to ping.
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - banklite-network
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    container_name: banklite-rabbitmq
+    restart: unless-stopped
+    environment:
+      # Default RabbitMQ username for local development.
+      RABBITMQ_DEFAULT_USER: banklite
+
+      # Default RabbitMQ password for local development.
+      RABBITMQ_DEFAULT_PASS: banklite
+    ports:
+      # RabbitMQ broker port used by NestJS services.
+      - "5672:5672"
+
+      # RabbitMQ Management UI.
+      - "15672:15672"
+    volumes:
+      # Keeps RabbitMQ queues and exchanges across restarts.
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      # Checks if RabbitMQ is running.
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - banklite-network
+
+  floci:
+    image: floci/floci:latest
+    container_name: banklite-floci
+    restart: unless-stopped
+    ports:
+      # Local AWS-compatible endpoint.
+      - "4566:4566"
+    volumes:
+      # Stores Floci local data.
+      - ./docker/floci/data:/app/data
+    networks:
+      - banklite-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+
+networks:
+  banklite-network:
+    driver: bridge

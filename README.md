@@ -43,3 +43,22 @@ Install dependencies:
 
 ```bash
 npm install
+```
+
+## Local Infrastructure
+
+BankLite uses Docker Compose for local infrastructure.
+
+Services:
+
+- PostgreSQL on port `5432`
+- Redis on port `6379`
+- RabbitMQ broker on port `5672`
+- RabbitMQ Management UI on port `15672`
+- Floci local AWS-compatible endpoint on port `4566`
+
+Start infrastructure:
+
+```bash
+npm run infra:up
+```
