@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 import type {
   AccountActivatedEvent,
+  BillPaymentRequestedEvent,
   TransferRequestedEvent,
 } from '@app/contracts';
 import { LedgerService } from './ledger.service';
@@ -32,5 +33,15 @@ export class LedgerConsumer {
   @EventPattern('transfer.requested')
   async handleTransferRequested(@Payload() event: TransferRequestedEvent) {
     await this.ledgerService.postTransferFromEvent(event);
+  }
+
+  /**
+   * Runs whenever Bill Payment Service publishes bill.payment.requested.
+   */
+  @EventPattern('bill.payment.requested')
+  async handleBillPaymentRequested(
+    @Payload() event: BillPaymentRequestedEvent,
+  ) {
+    await this.ledgerService.postBillPaymentFromEvent(event);
   }
 }
