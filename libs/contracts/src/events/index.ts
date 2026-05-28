@@ -9,3 +9,6 @@ export * from './ledger-failed.event';
 export * from './transfer-requested.event';
 export * from './transfer-completed.event';
 export * from './transfer-failed.event';
+export * from './bill-payment-requested.event';
+export * from './bill-payment-completed.event';
+export * from './bill-payment-failed.event';
