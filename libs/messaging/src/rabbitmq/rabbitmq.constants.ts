@@ -31,4 +31,4 @@ export const TRANSFER_EVENTS_QUEUE = 'transfer.events';
 /**
  * Queue used by Bill Payment Service.
  */
-export const BILL_PAYMENT_EVENTS_QUEUQ = 'bill-payment.events';
+export const BILL_PAYMENT_EVENTS_QUEUE = 'bill-payment.events';
