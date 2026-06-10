@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { UserProfileServiceModule } from './../src/user-profile-service.module';
+import { UserProfileServiceModule } from '../src/app.module';
 
 describe('UserProfileServiceController (e2e)', () => {
   let app: INestApplication;

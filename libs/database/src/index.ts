@@ -1,2 +1,1 @@
-export * from './database.module';
-export * from './database.service';
+export * from './typeorm/typeorm-config.factory';
