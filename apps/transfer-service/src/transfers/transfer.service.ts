@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { LedgerFailedEvent, LedgerPostedEvent } from '@app/contracts';
+import { evaluateTransactionFraudRules } from '@app/fraud-rules';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { Transfer } from './entities/transfer.entity';
 import { TransferStatusHistory } from './entities/transfer-status-history.entity';
@@ -58,6 +59,43 @@ export class TransferService {
 
     if (existingTransfer) {
       return existingTransfer;
+    }
+
+    const fraudResult = evaluateTransactionFraudRules({
+      transactionType: 'TRANSFER',
+      fromAccountId: dto.fromAccountId,
+      toAccountId: dto.toAccountId,
+      amountMinor: dto.amountMinor,
+      currency: dto.currency,
+    });
+
+    if (!fraudResult.isAllowed) {
+      const blockedTransfer = this.transferRepository.create({
+        userId: dto.userId,
+        fromAccountId: dto.fromAccountId,
+        toAccountId: dto.toAccountId,
+        amountMinor: dto.amountMinor,
+        currency: dto.currency,
+        status: 'FAILED',
+        idempotencyKey: dto.idempotencyKey,
+        riskScore: fraudResult.riskScore,
+        fraudReason: fraudResult.reason,
+        failureReason: fraudResult.reason,
+        failedAt: new Date(),
+      });
+
+      const savedTransfer = await this.transferRepository.save(blockedTransfer);
+
+      await this.statusHistoryRepository.save(
+        this.statusHistoryRepository.create({
+          transferId: savedTransfer.id,
+          previousStatus: 'PENDING',
+          newStatus: 'FAILED',
+          reason: fraudResult.reason ?? 'Blocked by fraud rules.',
+        }),
+      );
+
+      return savedTransfer;
     }
 
     /**
