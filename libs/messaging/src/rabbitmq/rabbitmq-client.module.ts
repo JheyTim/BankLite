@@ -1,56 +1,59 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import {
-  BANKLITE_RABBITMQ_CLIENT,
-  PROFILE_EVENTS_QUEUE,
-} from './rabbitmq.constants';
+import { BANKLITE_RABBITMQ_CLIENT } from './rabbitmq.constants';
 
 /**
  * Shared RabbitMQ client module.
- * Services use this to publish events to RabbitMQ.
+ * Services call register(queueName) so each publisher can target the queue
+ * that belongs to the service consuming the event.
  */
-@Module({
-  imports: [
-    ClientsModule.registerAsync([
-      {
-        /**
-         * Token used to inject the RabbitMQ client.
-         */
-        name: BANKLITE_RABBITMQ_CLIENT,
-
-        /**
-         * Reads RabbitMQ configuration from environment variables.
-         */
-        inject: [ConfigService],
-
-        /**
-         * Creates the RabbitMQ transport configuration.
-         */
-        useFactory: (configService: ConfigService) => ({
-          transport: Transport.RMQ,
-          options: {
+@Module({})
+export class RabbitMqClientModule {
+  static register(queueName: string): DynamicModule {
+    return {
+      module: RabbitMqClientModule,
+      imports: [
+        ClientsModule.registerAsync([
+          {
             /**
-             * RabbitMQ connection URL.
+             * Token used to inject the RabbitMQ client.
              */
-            urls: [configService.get<string>('RABBITMQ_URL')!],
+            name: BANKLITE_RABBITMQ_CLIENT,
 
             /**
-             * Default publishing queue for auth-related events.
+             * Reads RabbitMQ configuration from ConfigService.
              */
-            queue: PROFILE_EVENTS_QUEUE,
+            inject: [ConfigService],
 
             /**
-             * Durable queues survive broker restarts.
+             * Creates RabbitMQ transport options.
              */
-            queueOptions: {
-              durable: true,
-            },
+            useFactory: (configService: ConfigService) => ({
+              transport: Transport.RMQ,
+              options: {
+                /**
+                 * RabbitMQ connection URL.
+                 */
+                urls: [configService.get<string>('RABBITMQ_URL')!],
+
+                /**
+                 * Queue that this publisher sends messages to.
+                 */
+                queue: queueName,
+
+                /**
+                 * Durable queues survive RabbitMQ restarts.
+                 */
+                queueOptions: {
+                  durable: true,
+                },
+              },
+            }),
           },
-        }),
-      },
-    ]),
-  ],
-  exports: [ClientsModule],
-})
-export class RabbitMqClientModule {}
+        ]),
+      ],
+      exports: [ClientsModule],
+    };
+  }
+}

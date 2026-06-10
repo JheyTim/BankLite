@@ -65,4 +65,7 @@ export const envValidationSchema = Joi.object({
   AWS_ENDPOINT: Joi.string().default('http://localhost:4566'),
   AWS_ACCESS_KEY_ID: Joi.string().required(),
   AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+  AWS_KYC_DOCUMENTS_BUCKET: Joi.string().required(),
+  AWS_SUPPORT_DOCUMENTS_BUCKET: Joi.string().required(),
+  AWS_STATEMENTS_BUCKET: Joi.string().required(),
 });
