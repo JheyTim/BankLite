@@ -6,7 +6,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { AccountActivatedEvent, TransferRequestedEvent } from '@app/contracts';
+import {
+  AccountActivatedEvent,
+  BillPaymentRequestedEvent,
+  TransferRequestedEvent,
+} from '@app/contracts';
 import { AccountBalance } from './entities/account-balance.entity';
 import { LedgerEntry } from './entities/ledger-entry.entity';
 import { LedgerTransaction } from './entities/ledger-transaction.entity';
@@ -126,6 +130,7 @@ export class LedgerService {
       currency: dto.currency,
       correlationId: uuidv4(),
       shouldCheckDebitFunds: false,
+      shouldRequireCreditBalance: true,
     });
   }
 
@@ -142,6 +147,7 @@ export class LedgerService {
       currency: dto.currency,
       correlationId: uuidv4(),
       shouldCheckDebitFunds: true,
+      shouldRequireCreditBalance: true,
     });
   }
 
@@ -158,6 +164,30 @@ export class LedgerService {
       currency: event.currency,
       correlationId: event.correlationId,
       shouldCheckDebitFunds: true,
+      shouldRequireCreditBalance: true,
+    });
+  }
+
+  /**
+   * Handles bill.payment.requested events from Bill Payment Service.
+   */
+  async postBillPaymentFromEvent(event: BillPaymentRequestedEvent) {
+    /**
+     * For this learning project, all bill payments credit a system biller account.
+     * In a real system, each biller may have a settlement account.
+     */
+    const systemBillerAccountId = '00000000-0000-0000-0000-000000000002';
+
+    return this.postDoubleEntryTransaction({
+      referenceType: 'BILL_PAYMENT',
+      referenceId: event.billPaymentId,
+      debitAccountId: event.fromAccountId,
+      creditAccountId: systemBillerAccountId,
+      amountMinor: event.amountMinor,
+      currency: event.currency,
+      correlationId: event.correlationId,
+      shouldCheckDebitFunds: true,
+      shouldRequireCreditBalance: false,
     });
   }
 
@@ -175,6 +205,12 @@ export class LedgerService {
     currency: 'PHP' | 'USD';
     correlationId: string;
     shouldCheckDebitFunds: boolean;
+
+    /**
+     * Some system accounts, such as fake cash or biller accounts,
+     * do not have account_balances rows in this learning project.
+     */
+    shouldRequireCreditBalance?: boolean;
   }) {
     if (params.amountMinor <= 0) {
       throw new BadRequestException('Amount must be greater than zero.');
@@ -201,20 +237,27 @@ export class LedgerService {
         }
 
         /**
-         * Load credit account balance.
+         * Load credit account balance unless credit account is a system account.
          */
-        const creditBalance = await manager.findOne(AccountBalance, {
-          where: {
-            accountId: params.creditAccountId,
-          },
-        });
+        let creditBalance: AccountBalance | null = null;
 
-        if (!creditBalance) {
-          throw new NotFoundException('Credit account balance not found.');
-        }
+        const shouldRequireCreditBalance =
+          params.shouldRequireCreditBalance ?? true;
 
-        if (creditBalance.currency !== params.currency) {
-          throw new BadRequestException('Credit account currency mismatch.');
+        if (shouldRequireCreditBalance) {
+          creditBalance = await manager.findOne(AccountBalance, {
+            where: {
+              accountId: params.creditAccountId,
+            },
+          });
+
+          if (!creditBalance) {
+            throw new NotFoundException('Credit account balance not found.');
+          }
+
+          if (creditBalance.currency !== params.currency) {
+            throw new BadRequestException('Credit account currency mismatch.');
+          }
         }
 
         /**
@@ -292,14 +335,18 @@ export class LedgerService {
         }
 
         /**
-         * Increase credit account balance.
+         * Increase credit account balance if this is a real BankLite account.
+         * For system biller/cash accounts, we still create ledger entries,
+         * but we do not maintain a balance row.
          */
-        creditBalance.availableBalanceMinor =
-          Number(creditBalance.availableBalanceMinor) + params.amountMinor;
-        creditBalance.currentBalanceMinor =
-          Number(creditBalance.currentBalanceMinor) + params.amountMinor;
+        if (creditBalance) {
+          creditBalance.availableBalanceMinor =
+            Number(creditBalance.availableBalanceMinor) + params.amountMinor;
+          creditBalance.currentBalanceMinor =
+            Number(creditBalance.currentBalanceMinor) + params.amountMinor;
 
-        await manager.save(creditBalance);
+          await manager.save(creditBalance);
+        }
 
         return savedLedgerTransaction;
       });

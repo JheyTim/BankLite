@@ -339,3 +339,87 @@ transfer-service marks transfer COMPLETED or FAILED
 - Ledger Service owns all money movement.
 - Duplicate idempotency keys return the existing transfer.
 ```
+
+## Bill Payment Service
+
+### Start Bill Payment Service:
+
+```bash
+npm run start:dev bill-payment-service
+```
+
+### Create a biller:
+
+```bash
+curl -X POST http://localhost:3007/billers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Meralco",
+    "category": "ELECTRICITY"
+  }'
+```
+
+### List Billers:
+
+```bash
+curl http://localhost:3007/billers
+```
+
+### Create bill payment:
+
+```bash
+curl -X POST http://localhost:3007/bill-payments \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": "PASTE_USER_ID_HERE",
+    "fromAccountId": "PASTE_ACCOUNT_ID_HERE",
+    "billerId": "PASTE_BILLER_ID_HERE",
+    "billerReferenceNumber": "MERALCO-123456789",
+    "amountMinor": 35000,
+    "currency": "PHP",
+    "idempotencyKey": "bill-payment-test-001"
+  }'
+```
+
+### Get bill payment:
+
+```bash
+curl http://localhost:3007/bill-payments/PASTE_BILL_PAYMENT_ID_HERE
+```
+
+### List bill payments by user:
+
+```bash
+curl http://localhost:3007/bill-payments/users/PASTE_USER_ID_HERE
+```
+
+### Get bill payment status history:
+
+```bash
+curl http://localhost:3007/bill-payments/PASTE_BILL_PAYMENT_ID_HERE/status-history
+```
+
+### Bill payment flow:
+
+```txt
+POST /bill-payments
+    ↓
+bill-payment-service saves PROCESSING payment
+    ↓
+bill.payment.requested
+    ↓
+ledger-service debits user account
+    ↓
+ledger.posted or ledger.failed
+    ↓
+bill-payment-service marks payment PAID or FAILED
+```
+
+### Rules
+
+```txt
+- Every bill payment requires an idempotency key.
+- Bill Payment Service does not update balances.
+- Ledger Service owns all money movement.
+- Duplicate idempotency keys return the existing bill payment.
+```

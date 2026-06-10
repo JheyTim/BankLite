@@ -4,6 +4,11 @@
 export const BANKLITE_RABBITMQ_CLIENT = 'BANKLITE_RABBITMQ_CLIENT';
 
 /**
+ * Injection token for the Ledger-to-Bill-Payment RabbitMQ client.
+ */
+export const LEDGER_TO_BILL_PAYMENT_CLIENT = 'LEDGER_TO_BILL_PAYMENT_CLIENT';
+
+/**
  * Queue used by User Profile Service.
  */
 export const PROFILE_EVENTS_QUEUE = 'profile.events';
@@ -27,3 +32,8 @@ export const LEDGER_EVENTS_QUEUE = 'ledger.events';
  * Queue used by Transfer Service.
  */
 export const TRANSFER_EVENTS_QUEUE = 'transfer.events';
+
+/**
+ * Queue used by Bill Payment Service.
+ */
+export const BILL_PAYMENT_EVENTS_QUEUE = 'bill-payment.events';
