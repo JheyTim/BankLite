@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { LedgerFailedEvent, LedgerPostedEvent } from '@app/contracts';
+import { evaluateTransactionFraudRules } from '@app/fraud-rules';
 import { CreateBillerDto } from './dto/create-biller.dto';
 import { CreateBillPaymentDto } from './dto/create-bill-payment.dto';
 import { Biller } from './entities/biller.entity';
@@ -109,6 +110,44 @@ export class BillPaymentService {
       throw new BadRequestException('Biller is not available.');
     }
 
+    const fraudResult = evaluateTransactionFraudRules({
+      transactionType: 'BILL_PAYMENT',
+      fromAccountId: dto.fromAccountId,
+      amountMinor: dto.amountMinor,
+      currency: dto.currency,
+    });
+
+    if (!fraudResult.isAllowed) {
+      const blockedPayment = this.billPaymentRepository.create({
+        userId: dto.userId,
+        fromAccountId: dto.fromAccountId,
+        billerId: dto.billerId,
+        billerReferenceNumber: dto.billerReferenceNumber,
+        amountMinor: dto.amountMinor,
+        currency: dto.currency,
+        status: 'FAILED',
+        idempotencyKey: dto.idempotencyKey,
+        riskScore: fraudResult.riskScore,
+        fraudReason: fraudResult.reason,
+        failureReason: fraudResult.reason,
+        failedAt: new Date(),
+      });
+
+      const savedPayment =
+        await this.billPaymentRepository.save(blockedPayment);
+
+      await this.statusHistoryRepository.save(
+        this.statusHistoryRepository.create({
+          billPaymentId: savedPayment.id,
+          previousStatus: 'PENDING',
+          newStatus: 'FAILED',
+          reason: fraudResult.reason ?? 'Blocked by fraud rules.',
+        }),
+      );
+
+      return savedPayment;
+    }
+
     /**
      * Create bill payment as PROCESSING.
      */
@@ -121,6 +160,7 @@ export class BillPaymentService {
       currency: dto.currency,
       status: 'PROCESSING',
       idempotencyKey: dto.idempotencyKey,
+      riskScore: fraudResult.riskScore,
     });
 
     const savedPayment = await this.billPaymentRepository.save(billPayment);

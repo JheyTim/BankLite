@@ -340,6 +340,8 @@ transfer-service marks transfer COMPLETED or FAILED
 - Duplicate idempotency keys return the existing transfer.
 ```
 
+---
+
 ## Bill Payment Service
 
 ### Start Bill Payment Service:
@@ -423,3 +425,31 @@ bill-payment-service marks payment PAID or FAILED
 - Ledger Service owns all money movement.
 - Duplicate idempotency keys return the existing bill payment.
 ```
+
+---
+
+## Fraud Rules
+
+Fraud Rules run before Transfer Service or Bill Payment Service publishes events to Ledger Service.
+
+```txt
+Transfer or bill payment request
+    ↓
+Fraud rules check
+    ↓
+Allowed: publish to Ledger
+Blocked: mark transaction FAILED
+```
+
+### Rules:
+
+```txt
+- Block PHP transactions above 50,000 PHP.
+- Block USD transactions above 1,000 USD.
+- Block transfers where fromAccountId equals toAccountId.
+- Store riskScore.
+- Store fraudReason.
+- Blocked transactions must not create ledger transactions.
+```
+
+---
