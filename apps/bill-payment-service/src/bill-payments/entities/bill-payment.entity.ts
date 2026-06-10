@@ -72,6 +72,12 @@ export class BillPayment {
   idempotencyKey!: string;
 
   /**
+   * Fraud risk score calculated before sending to Ledger.
+   */
+  @Column({ type: 'int', default: 0 })
+  riskScore!: number;
+
+  /**
    * Ledger transaction ID after successful posting.
    */
   @Column({ type: 'uuid', nullable: true })
@@ -94,6 +100,12 @@ export class BillPayment {
    */
   @Column({ type: 'timestamp', nullable: true })
   failedAt?: Date;
+
+  /**
+   * Fraud rule reason if blocked before Ledger.
+   */
+  @Column({ type: 'text', nullable: true })
+  fraudReason?: string;
 
   /**
    * When bill payment was created.
