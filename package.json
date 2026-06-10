@@ -105,6 +105,7 @@
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
       "^@app/database(|/.*)$": "<rootDir>/libs/database/src/$1",
+      "^@app/fraud-rules(|/.*)$": "<rootDir>/libs/fraud-rules/src/$1",
       "^@app/logger(|/.*)$": "<rootDir>/libs/logger/src/$1",
       "^@app/messaging(|/.*)$": "<rootDir>/libs/messaging/src/$1",
       "^@app/redis(|/.*)$": "<rootDir>/libs/redis/src/$1"

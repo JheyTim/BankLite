@@ -100,6 +100,15 @@
         "tsConfigPath": "apps/file-service/tsconfig.app.json"
       }
     },
+    "fraud-rules": {
+      "type": "library",
+      "root": "libs/fraud-rules",
+      "entryFile": "index",
+      "sourceRoot": "libs/fraud-rules/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/fraud-rules/tsconfig.lib.json"
+      }
+    },
     "fraud-service": {
       "type": "application",
       "root": "apps/fraud-service",
