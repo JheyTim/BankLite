@@ -7,17 +7,35 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "build:api-gateway": "nest build api-gateway",
+    "build:auth": "nest build auth-service",
+    "build:user": "nest build user-service",
+    "build:account": "nest build account-service",
+    "build:wallet": "nest build wallet-service",
+    "build:ledger": "nest build ledger-service",
+    "build:transaction": "nest build transaction-service",
+    "build:notification": "nest build notification-service",
+    "build:audit": "nest build audit-service",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
+    "start:prod": "node dist/apps/banklite/main",
+    "start:dev:api-gateway": "nest start api-gateway --watch",
+    "start:dev:auth": "nest start auth-service --watch",
+    "start:dev:user": "nest start user-service --watch",
+    "start:dev:account": "nest start account-service --watch",
+    "start:dev:wallet": "nest start wallet-service --watch",
+    "start:dev:ledger": "nest start ledger-service --watch",
+    "start:dev:transaction": "nest start transaction-service --watch",
+    "start:dev:notification": "nest start notification-service --watch",
+    "start:dev:audit": "nest start audit-service --watch",
+    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
+    "lint": "eslint \"{apps,libs}/**/*.ts\" --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:cov": "vitest run --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/banklite/test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -36,6 +54,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.0",
     "@types/supertest": "^7.0.0",
+    "@vitest/coverage-v8": "^4.1.8",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
@@ -49,7 +68,9 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0"
+    "typescript-eslint": "^8.20.0",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.8"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -57,7 +78,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -65,7 +86,16 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/apps/",
+      "<rootDir>/libs/"
+    ],
+    "moduleNameMapper": {
+      "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
+      "^@app/shared(|/.*)$": "<rootDir>/libs/shared/src/$1",
+      "^@app/testing(|/.*)$": "<rootDir>/libs/testing/src/$1"
+    }
   }
 }
