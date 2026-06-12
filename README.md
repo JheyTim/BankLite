@@ -1,455 +1,98 @@
-# BankLite
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+</p>
 
-BankLite is a production-style digital banking backend built with TypeScript, NestJS, PostgreSQL, Redis, RabbitMQ, Docker, Kubernetes, centralized logging, and local AWS-compatible storage through Floci.
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+[circleci-url]: https://circleci.com/gh/nestjs/nest
 
----
+  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+    <p align="center">
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
+<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
+<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
+<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
+<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
+  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
+    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
+  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+</p>
+  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
+  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Project Goals
+## Description
 
-- Practice microservices architecture.
-- Build banking-style account and ledger workflows.
-- Use event-driven communication through RabbitMQ.
-- Use Redis for locks, rate limiting, idempotency, and fraud counters.
-- Use PostgreSQL for service-owned data.
-- Use Floci for local AWS-style file storage.
-- Practice Docker and Kubernetes deployment patterns.
-- Add comments to non-obvious code for learning.
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
----
-
-## Services
-
-- api-gateway
-- auth-service
-- user-profile-service
-- kyc-service
-- account-service
-- ledger-service
-- transfer-service
-- bill-payment-service
-- fraud-service
-- notification-service
-- file-service
-- audit-log-service
-
----
-
-## Shared Libraries
-
-- common
-- contracts
-- database
-- logger
-- messaging
-- redis
-
----
-
-## Local Development
-
-### Install dependencies:
+## Project setup
 
 ```bash
-npm install
+$ npm install
 ```
 
----
-
-## Local Infrastructure
-
-BankLite uses Docker Compose for local infrastructure.
-
-### Services:
-
-- PostgreSQL on port `5432`
-- Redis on port `6379`
-- RabbitMQ broker on port `5672`
-- RabbitMQ Management UI on port `15672`
-- Floci local AWS-compatible endpoint on port `4566`
-
-### Start infrastructure:
+## Compile and run the project
 
 ```bash
-npm run infra:up
+# development
+$ npm run start
+
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
 ```
 
----
-
-## Auth Service
-
-### Start Auth Service:
+## Run tests
 
 ```bash
-npm run start:dev auth-service
+# unit tests
+$ npm run test
+
+# e2e tests
+$ npm run test:e2e
+
+# test coverage
+$ npm run test:cov
 ```
 
-### Register:
+## Deployment
+
+When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+
+If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
 
 ```bash
-curl -X POST http://localhost:3001/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "timothy@example.com",
-    "fullName": "Timothy Jhey",
-    "password": "password123",
-    "role": "USER"
-  }'
+$ npm install -g @nestjs/mau
+$ mau deploy
 ```
 
-### Login:
+With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
-```bash
-curl -X POST http://localhost:3001/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "timothy@example.com",
-    "password": "password123"
-  }'
-```
+## Resources
 
-## User Profile Service
+Check out a few resources that may come in handy when working with NestJS:
 
-```bash
-npm run start:dev user-profile-service
-```
+- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
+- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
+- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
+- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
+- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
+- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
+- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
+- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
 
-The profile service consumes the user.registered event and creates a profile record.
+## Support
 
----
+Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
-## File Service
+## Stay in touch
 
-### Start File Service:
+- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
+- Website - [https://nestjs.com](https://nestjs.com/)
+- Twitter - [@nestframework](https://twitter.com/nestframework)
 
-```bash
-npm run start:dev file-service
-```
+## License
 
-### Upload a KYC document:
-
-```bash
-curl -X POST http://localhost:3010/files/kyc-documents \
-  -F "userId=PASTE_USER_ID_HERE" \
-  -F "documentType=GOVERNMENT_ID" \
-  -F "file=@sample-kyc.txt"
-```
-
----
-
-## KYC Service
-
-### Start KYC Service:
-
-```bash
-npm run start:dev kyc-service
-```
-
-### List KYC cases:
-
-```bash
-curl http://localhost:3003/kyc/cases
-```
-
-### Approve KYC:
-
-```bash
-curl -X PATCH http://localhost:3003/kyc/cases/PASTE_KYC_CASE_ID_HERE/approve \
-  -H "Content-Type: application/json" \
-  -d '{
-    "reviewedByUserId": "PASTE_REVIEWER_USER_ID_HERE"
-  }'
-```
-
-### Reject KYC:
-
-```bash
-curl -X PATCH http://localhost:3003/kyc/cases/PASTE_KYC_CASE_ID_HERE/reject \
-  -H "Content-Type: application/json" \
-  -d '{
-    "reviewedByUserId": "PASTE_REVIEWER_USER_ID_HERE",
-    "reason": "Document is unreadable."
-  }'
-```
-
----
-
-## Account Service
-
-### Start Account Service:
-
-```bash
-npm run start:dev account-service
-```
-
-The Account Service consumes the kyc.verified event and creates a default active PHP savings account.
-
-### List accounts by user:
-
-```bash
-curl http://localhost:3004/accounts/users/PASTE_USER_ID_HERE
-```
-
-### Get account by ID:
-
-```bash
-curl http://localhost:3004/accounts/PASTE_ACCOUNT_ID_HERE
-```
-
-### Get account status history:
-
-```bash
-curl http://localhost:3004/accounts/PASTE_ACCOUNT_ID_HERE/status-history
-```
-
-### Account creation flow:
-
-```txt
-kyc.verified
-    ↓
-account-service creates ACTIVE savings account
-    ↓
-account.created
-    ↓
-account.activated
-```
-
----
-
-## Ledger Service
-
-### Start Ledger Service:
-
-```bash
-npm run start:dev ledger-service
-```
-
-The Ledger Service owns account balances and append-only ledger entries.
-
-When Account Service publishes account.activated, Ledger Service creates a zero balance row.
-
-### Get account balance:
-
-```bash
-curl http://localhost:3005/ledger/balances/PASTE_ACCOUNT_ID_HERE
-```
-
-### List ledger entries:
-
-```bash
-curl http://localhost:3005/ledger/accounts/PASTE_ACCOUNT_ID_HERE/entries
-```
-
-### Create local test deposit:
-
-```bash
-curl -X POST http://localhost:3005/ledger/deposits \
-  -H "Content-Type: application/json" \
-  -d '{
-    "accountId": "PASTE_ACCOUNT_ID_HERE",
-    "amountMinor": 100000,
-    "currency": "PHP"
-  }'
-```
-
-### Create local test transfer posting:
-
-```bash
-curl -X POST http://localhost:3005/ledger/transfer-postings \
-  -H "Content-Type: application/json" \
-  -d '{
-    "fromAccountId": "PASTE_FIRST_ACCOUNT_ID_HERE",
-    "toAccountId": "PASTE_SECOND_ACCOUNT_ID_HERE",
-    "amountMinor": 25000,
-    "currency": "PHP"
-  }'
-```
-
-### Ledger rules:
-
-- Never update balances without ledger entries.
-- Store money as minor units.
-- Every money movement must have debit and credit entries.
-- ledger_entries is append-only.
-- account_balances is a fast-read cache.
-
----
-
-## Transfer Service
-
-Start Transfer Service:
-
-```bash
-npm run start:dev transfer-service
-```
-
-### Create transfer:
-
-```bash
-curl -X POST http://localhost:3006/transfers \
-  -H "Content-Type: application/json" \
-  -d '{
-    "userId": "PASTE_SENDER_USER_ID_HERE",
-    "fromAccountId": "PASTE_SENDER_ACCOUNT_ID_HERE",
-    "toAccountId": "PASTE_RECEIVER_ACCOUNT_ID_HERE",
-    "amountMinor": 25000,
-    "currency": "PHP",
-    "idempotencyKey": "transfer-test-001"
-  }'
-```
-
-### Get transfer:
-
-```bash
-curl http://localhost:3006/transfers/PASTE_TRANSFER_ID_HERE
-```
-
-### List transfers by user:
-
-```bash
-curl http://localhost:3006/transfers/users/PASTE_USER_ID_HERE
-```
-
-### Get transfer status history:
-
-```bash
-curl http://localhost:3006/transfers/PASTE_TRANSFER_ID_HERE/status-history
-```
-
-### Transfer flow:
-
-```txt
-POST /transfers
-    ↓
-transfer-service saves PROCESSING transfer
-    ↓
-transfer.requested
-    ↓
-ledger-service creates debit and credit entries
-    ↓
-ledger.posted or ledger.failed
-    ↓
-transfer-service marks transfer COMPLETED or FAILED
-```
-
-### Rules:
-
-```txt
-- Every transfer requires an idempotency key.
-- Transfer Service does not update balances.
-- Ledger Service owns all money movement.
-- Duplicate idempotency keys return the existing transfer.
-```
-
----
-
-## Bill Payment Service
-
-### Start Bill Payment Service:
-
-```bash
-npm run start:dev bill-payment-service
-```
-
-### Create a biller:
-
-```bash
-curl -X POST http://localhost:3007/billers \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Meralco",
-    "category": "ELECTRICITY"
-  }'
-```
-
-### List Billers:
-
-```bash
-curl http://localhost:3007/billers
-```
-
-### Create bill payment:
-
-```bash
-curl -X POST http://localhost:3007/bill-payments \
-  -H "Content-Type: application/json" \
-  -d '{
-    "userId": "PASTE_USER_ID_HERE",
-    "fromAccountId": "PASTE_ACCOUNT_ID_HERE",
-    "billerId": "PASTE_BILLER_ID_HERE",
-    "billerReferenceNumber": "MERALCO-123456789",
-    "amountMinor": 35000,
-    "currency": "PHP",
-    "idempotencyKey": "bill-payment-test-001"
-  }'
-```
-
-### Get bill payment:
-
-```bash
-curl http://localhost:3007/bill-payments/PASTE_BILL_PAYMENT_ID_HERE
-```
-
-### List bill payments by user:
-
-```bash
-curl http://localhost:3007/bill-payments/users/PASTE_USER_ID_HERE
-```
-
-### Get bill payment status history:
-
-```bash
-curl http://localhost:3007/bill-payments/PASTE_BILL_PAYMENT_ID_HERE/status-history
-```
-
-### Bill payment flow:
-
-```txt
-POST /bill-payments
-    ↓
-bill-payment-service saves PROCESSING payment
-    ↓
-bill.payment.requested
-    ↓
-ledger-service debits user account
-    ↓
-ledger.posted or ledger.failed
-    ↓
-bill-payment-service marks payment PAID or FAILED
-```
-
-### Rules
-
-```txt
-- Every bill payment requires an idempotency key.
-- Bill Payment Service does not update balances.
-- Ledger Service owns all money movement.
-- Duplicate idempotency keys return the existing bill payment.
-```
-
----
-
-## Fraud Rules
-
-Fraud Rules run before Transfer Service or Bill Payment Service publishes events to Ledger Service.
-
-```txt
-Transfer or bill payment request
-    ↓
-Fraud rules check
-    ↓
-Allowed: publish to Ledger
-Blocked: mark transaction FAILED
-```
-
-### Rules:
-
-```txt
-- Block PHP transactions above 50,000 PHP.
-- Block USD transactions above 1,000 USD.
-- Block transfers where fromAccountId equals toAccountId.
-- Store riskScore.
-- Store fraudReason.
-- Blocked transactions must not create ledger transactions.
-```
-
----
+Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
