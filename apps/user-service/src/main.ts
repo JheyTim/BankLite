@@ -1,8 +1,19 @@
 import { NestFactory } from '@nestjs/core';
-import { UserServiceModule } from './user-service.module';
+import { ConfigService } from '@nestjs/config';
+import { configureHttpApp } from '@app/shared';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(UserServiceModule);
-  await app.listen(process.env.port ?? 3000);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+
+  configureHttpApp(app);
+
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('USER_SERVICE_PORT') ?? 3002;
+
+  await app.listen(port);
 }
-bootstrap();
+
+void bootstrap();

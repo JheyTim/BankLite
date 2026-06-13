@@ -1,8 +1,19 @@
 import { NestFactory } from '@nestjs/core';
-import { TransactionServiceModule } from './transaction-service.module';
+import { ConfigService } from '@nestjs/config';
+import { configureHttpApp } from '@app/shared';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(TransactionServiceModule);
-  await app.listen(process.env.port ?? 3000);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+
+  configureHttpApp(app);
+
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('TRANSACTION_SERVICE_PORT') ?? 3006;
+
+  await app.listen(port);
 }
-bootstrap();
+
+void bootstrap();

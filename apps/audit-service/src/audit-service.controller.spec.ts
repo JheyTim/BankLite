@@ -11,7 +11,9 @@ describe('AuditServiceController', () => {
       providers: [AuditServiceService],
     }).compile();
 
-    auditServiceController = app.get<AuditServiceController>(AuditServiceController);
+    auditServiceController = app.get<AuditServiceController>(
+      AuditServiceController,
+    );
   });
 
   describe('root', () => {
