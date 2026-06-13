@@ -1,0 +1,20 @@
+# Grafana provisioning API version.
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    # This tells Grafana the datasource type is Prometheus.
+    type: prometheus
+
+    # proxy means Grafana server talks to Prometheus from inside the Docker network.
+    access: proxy
+
+    # Use the Docker Compose service name, not localhost.
+    # Inside the Docker network, "prometheus" resolves to the Prometheus container.
+    url: http://prometheus:9090
+
+    # Make this the default datasource for dashboards.
+    isDefault: true
+
+    # Allow updating this datasource if the file changes.
+    editable: true

@@ -1,0 +1,216 @@
+# Docker Compose project name.
+# This keeps all containers, networks, and volumes grouped under "banklite".
+name: banklite
+
+services:
+  postgres:
+    # PostgreSQL is the main relational database for BankLite.
+    # We use it for users, accounts, wallets, ledger entries, transactions, notifications, and audit logs.
+    image: postgres:16-alpine
+    container_name: banklite-postgres
+    restart: unless-stopped
+
+    # These values are loaded from .env.
+    # The official Postgres image uses POSTGRES_PASSWORD, POSTGRES_USER, and POSTGRES_DB during first initialization.
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-banklite}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-banklite_password}
+      POSTGRES_DB: ${POSTGRES_DB:-banklite}
+
+    ports:
+      # Expose PostgreSQL to the host machine so our local NestJS apps can connect.
+      - '${POSTGRES_PORT:-5432}:5432'
+
+    volumes:
+      # Named volume keeps database data even if the container restarts.
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      # pg_isready checks whether PostgreSQL is accepting connections.
+      # Double dollar signs escape variables so they are evaluated inside the container.
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - banklite-network
+
+  redis:
+    # Redis will be used for cache, idempotency keys, rate limits, and short-lived state.
+    image: redis:7-alpine
+    container_name: banklite-redis
+    restart: unless-stopped
+
+    ports:
+      # Expose Redis to the host machine so local NestJS apps can connect.
+      - '${REDIS_PORT:-6379}:6379'
+
+    command:
+      # Enable append-only persistence so Redis data survives container restarts better during local development.
+      - redis-server
+      - --appendonly
+      - 'yes'
+
+    volumes:
+      # Named volume stores Redis append-only files.
+      - redis_data:/data
+
+    healthcheck:
+      # redis-cli ping returns PONG when Redis is healthy.
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - banklite-network
+
+  rabbitmq:
+    # RabbitMQ is the message broker for async microservice communication.
+    # The management image includes the browser UI.
+    image: rabbitmq:4-management-alpine
+    container_name: banklite-rabbitmq
+    restart: unless-stopped
+
+    environment:
+      # Custom local credentials for RabbitMQ.
+      # The RabbitMQ Docker image supports these default user/password variables.
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-banklite}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-banklite_password}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_DEFAULT_VHOST:-banklite}
+
+    ports:
+      # AMQP port used by NestJS microservices.
+      - '${RABBITMQ_PORT:-5672}:5672'
+
+      # Management UI port used in the browser.
+      - '${RABBITMQ_MANAGEMENT_PORT:-15672}:15672'
+
+    volumes:
+      # Named volume keeps RabbitMQ queues, exchanges, and metadata between restarts.
+      - rabbitmq_data:/var/lib/rabbitmq
+
+    healthcheck:
+      # rabbitmq-diagnostics ping checks whether the broker is alive.
+      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+    networks:
+      - banklite-network
+
+  floci:
+    # Floci is our local AWS-compatible emulator.
+    # Later, we will use it for S3-style KYC document storage and possibly SQS/DynamoDB experiments.
+    image: floci/floci:latest
+    container_name: banklite-floci
+    restart: unless-stopped
+
+    ports:
+      # Floci AWS emulator listens on port 4566.
+      - '${FLOCI_PORT:-4566}:4566'
+
+    volumes:
+      # Floci may need Docker socket access for some emulated services.
+      # This matches Floci's Docker quick-start style.
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    environment:
+      # Dummy AWS credentials for local development.
+      # These are not real AWS secrets.
+      AWS_ACCESS_KEY_ID: ${FLOCI_ACCESS_KEY_ID:-test}
+      AWS_SECRET_ACCESS_KEY: ${FLOCI_SECRET_ACCESS_KEY:-test}
+      AWS_DEFAULT_REGION: ${FLOCI_REGION:-us-east-1}
+
+    networks:
+      - banklite-network
+
+  prometheus:
+    # Prometheus collects metrics from services.
+    # For now, it will scrape itself. Later, it will scrape every NestJS service /metrics endpoint.
+    image: prom/prometheus:latest
+    container_name: banklite-prometheus
+    restart: unless-stopped
+
+    ports:
+      # Prometheus web UI.
+      - '${PROMETHEUS_PORT:-9090}:9090'
+
+    volumes:
+      # Mount our Prometheus config file into the container.
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+      # Persist Prometheus time-series data.
+      - prometheus_data:/prometheus
+
+    command:
+      # Tell Prometheus where its config file is.
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+      # Store metrics data inside the persisted volume.
+      - '--storage.tsdb.path=/prometheus'
+
+      # Enable lifecycle endpoints such as reload.
+      - '--web.enable-lifecycle'
+
+    networks:
+      - banklite-network
+
+  grafana:
+    # Grafana visualizes metrics from Prometheus.
+    image: grafana/grafana:latest
+    container_name: banklite-grafana
+    restart: unless-stopped
+
+    depends_on:
+      # Start Grafana after Prometheus has started.
+      - prometheus
+
+    environment:
+      # Local-only Grafana admin login.
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+
+      # Disable signup because this is a local developer dashboard.
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+
+    ports:
+      # Grafana runs on port 3000 inside the container.
+      # We expose it on 3009 locally to avoid colliding with api-gateway on 3000.
+      - '${GRAFANA_PORT:-3009}:3000'
+
+    volumes:
+      # Persist Grafana dashboards, users, and settings.
+      - grafana_data:/var/lib/grafana
+
+      # Auto-provision Prometheus as a Grafana datasource.
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+
+      # Store future custom BankLite dashboards here.
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
+
+    networks:
+      - banklite-network
+
+volumes:
+  # PostgreSQL persistent data.
+  postgres_data:
+
+  # Redis persistent data.
+  redis_data:
+
+  # RabbitMQ persistent data.
+  rabbitmq_data:
+
+  # Prometheus persistent metrics.
+  prometheus_data:
+
+  # Grafana persistent data.
+  grafana_data:
+
+networks:
+  # Private network used by all BankLite infrastructure containers.
+  banklite-network:
+    driver: bridge

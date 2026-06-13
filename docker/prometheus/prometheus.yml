@@ -1,0 +1,32 @@
+# Global Prometheus settings.
+global:
+  # Prometheus will scrape configured targets every 15 seconds.
+  scrape_interval: 15s
+
+  # Prometheus will evaluate alerting rules every 15 seconds.
+  # We are not adding alert rules yet, but this prepares the config.
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Prometheus scrapes itself so we can confirm metrics collection works immediately.
+  - job_name: 'prometheus'
+    static_configs:
+      - targets:
+          - 'prometheus:9090'
+
+  # Future BankLite service metrics.
+  # We will uncomment and adjust these once each NestJS service exposes /metrics.
+  #
+  # - job_name: "banklite-services"
+  #   metrics_path: "/metrics"
+  #   static_configs:
+  #     - targets:
+  #         - "api-gateway:3000"
+  #         - "auth-service:3001"
+  #         - "user-service:3002"
+  #         - "account-service:3003"
+  #         - "wallet-service:3004"
+  #         - "ledger-service:3005"
+  #         - "transaction-service:3006"
+  #         - "notification-service:3007"
+  #         - "audit-service:3008"
